@@ -10,6 +10,6 @@ let rec getFuel mass =
 
 [<EntryPoint>]
 let main argv =
-    let result = Input.modules |> List.map getFuel |> List.sum
+    let result = Input.modules |> List.sumBy getFuel
     Console.WriteLine result
     0 // return an integer exit code
