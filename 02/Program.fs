@@ -1,8 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-
-open System
-
-type Operation = Add = 1 | Multiply = 2 | End = 99
+﻿type Operation = Add = 1 | Multiply = 2 | End = 99
 
 let setListElement index newValue list = 
     list |> List.mapi (fun i value -> if i = index then newValue else value)
@@ -14,19 +10,40 @@ let readLine list lineIndex =
 
 let execute opCode a b = 
     match opCode with
-    | 1 -> a + b
-    | 2 -> a * b
+    | Operation.Add -> a + b
+    | Operation.Multiply -> a * b
     | _ -> 0
 
-let rec intCode lineIndex program = 
-    let instruction = readLine program lineIndex
-    match instruction with
-    | [opCode; i1; i2; i3] when opCode <> 99 -> program |> setListElement i3 (execute opCode program.[i1] program.[i2]) |> intCode (lineIndex + 1)
-    | [99; _; _; _;]
-    | _ -> program
+let intCode program =
+    let rec processLine lineIndex program = 
+        let instruction = readLine program lineIndex
+        match instruction with
+        | [opCode; i1; i2; i3] when enum opCode <> Operation.End -> 
+            let result = execute (enum opCode) program.[i1] program.[i2]
+            program |> setListElement i3 result |> processLine (lineIndex + 1)
+        | _ -> program
+    processLine 0 program
+
+let initProgram noun verb program = program |> setListElement 1 noun |> setListElement 2 verb
+
+let findInput result program = 
+    let rec loop noun verb =
+        let checkResult = program |> initProgram noun verb |> intCode |> List.item 0
+        match checkResult with
+        | x when x = result -> Some noun, Some verb
+        | _ when noun < 99 -> loop (noun + 1) verb
+        | _ when verb < 99 -> loop 0 (verb + 1)
+        | _ -> None, None
+    loop 1 1
+            
 
 [<EntryPoint>]
 let main argv =
-    let result = Input.program |> setListElement 1 12 |> setListElement 2 2 |> intCode 0
-    printf "%A" result.[0]
+    let result1 = Input.program |> initProgram 12 2 |> intCode
+    printfn "result1=%A" result1.[0]
+
+    let noun, verb = Input.program |> findInput 19690720
+    match noun, verb with 
+    | (Some x, Some y) -> printfn "result2=%A" (100 * x + y)
+    | _ -> printfn "result2 not found"
     0 // return an integer exit code
