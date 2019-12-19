@@ -18,23 +18,19 @@ let getParameterMode value =
 let setElem index newValue list =
     list |> List.mapi (fun i value -> if i = index then newValue else value)
 
-let getInstructionLength opCode =
-    match opCode with
-    | Add | Multiply -> 4
-    | Input | Output -> 2
-    | End -> 1
-
 let intCode input program =
     let rec exec input index (program: int list) output =
         let exec = exec input
         let operation = program.[index] |> sprintf "%05i"
+        let opCode: Operation = operation.Substring(3) |> int |> getOperation
+
         let getValue instructionIndex =
             let value = program.[index + instructionIndex]
             let parameterMode: ParameterMode = operation.Substring(3 - instructionIndex, 1) |> (int >> getParameterMode)
             match parameterMode with
             | Immediate -> value
             | Position -> program.[value]
-        let opCode: Operation = operation.Substring(3) |> int |> getOperation
+
         match opCode with
         | Add -> (program |> setElem (program.[index + 3]) (getValue 1 + getValue 2), output) ||> exec (index + 4)
         | Multiply -> (program |> setElem (program.[index + 3]) (getValue 1 * getValue 2), output) ||> exec (index + 4)
