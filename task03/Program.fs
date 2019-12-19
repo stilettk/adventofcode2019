@@ -1,4 +1,6 @@
-﻿open Input;
+﻿module Program
+
+open Input;
 
 type Coordinate = { x: int; y: int }
 

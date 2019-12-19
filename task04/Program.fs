@@ -1,4 +1,6 @@
-﻿open System.Text.RegularExpressions
+﻿module Program
+
+open System.Text.RegularExpressions
 
 let isValidPassword1 password = Regex.IsMatch(password, "^0*1*2*3*4*5*6*7*8*9*$") && Regex.IsMatch(password, "(\d)\1+")
 

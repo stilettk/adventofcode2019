@@ -1,4 +1,6 @@
-﻿let rec getFuel mass =
+﻿module Program
+
+let rec getFuel mass =
     let fuel = mass / 3 - 2 |> max 0
     fuel + if fuel > 0 then getFuel fuel else 0
 

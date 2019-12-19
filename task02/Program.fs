@@ -1,4 +1,6 @@
-﻿type Operation = | Add = 1 | Multiply = 2 | End = 99
+﻿module Program
+
+type Operation = | Add = 1 | Multiply = 2 | End = 99
 
 let setListElement index newValue list =
     list |> List.mapi (fun i value -> if i = index then newValue else value)
