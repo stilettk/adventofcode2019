@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task01.Program
 
 let rec getFuel mass =
     let fuel = mass / 3 - 2 |> max 0

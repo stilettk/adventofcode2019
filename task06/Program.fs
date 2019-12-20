@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task06.Program
 
 type Object = Object of string
 type Satellites = Map<Object, Object list>

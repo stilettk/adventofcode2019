@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task02.Program
 
 type Operation = | Add = 1 | Multiply = 2 | End = 99
 

@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task04.Program
 
 open System.Text.RegularExpressions
 

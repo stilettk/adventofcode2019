@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task03.Program
 
 open Input;
 

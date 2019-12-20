@@ -1,4 +1,4 @@
-﻿module Program
+﻿module task05.Program
 
 type Operation =
     | Add
