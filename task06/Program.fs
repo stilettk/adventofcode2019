@@ -1,27 +1,54 @@
 ﻿module Program
 
-type Object = string
-type Orbits = Map<Object, Object list>
+type Object = Object of string
+type Satellites = Map<Object, Object list>
+type Orbits = Map<Object, Object>
 
-let createOrbitsMap (input: string seq): Orbits =
+type Connection = | Orbit | Satellite
+type ConnectionMap = Map<Object, (Object * Connection) list>
+
+let createMap (input: string seq): ConnectionMap =
     input
-    |> Seq.map (fun x -> x.Split(")"))
-    |> Seq.map (fun x -> x.[0], x.[1])
+    |> Seq.map (fun x -> x.Split(")") |> Array.map Object)
+    |> Seq.collect (fun x -> [ x.[1], (x.[0], Orbit); x.[0], (x.[1], Satellite) ])
+    |> Seq.distinct
     |> Seq.groupBy fst
     |> Seq.map (fun (key, value) -> (key, Seq.map snd value |> Seq.toList))
     |> Map.ofSeq
 
-let getTotalOrbitsCount (orbitsMap: Orbits) =
-    let rec getOrbitsCount count object = 
+let getTotalOrbitsCount (map: ConnectionMap) =
+    let rec getOrbitsCount count object =
+        let getSatellites = List.choose (fun x -> if snd x = Satellite then Some <| fst x else None)
         let directCount =
-            match orbitsMap.TryFind object with
+            match map.TryFind object with
             | None -> 0
-            | Some satellites -> satellites |> List.sumBy (getOrbitsCount (count + 1))
+            | Some connections -> connections |> getSatellites |> Seq.sumBy (getOrbitsCount <| count + 1)
         count + directCount
-    getOrbitsCount 0 "COM"
+    getOrbitsCount 0 (Object "COM")
+
+let findMinimumDistance map source destination =
+    let rec bfs visited queue =
+        match queue with
+        | [] -> None
+        | (current, distance) :: _ when current = destination -> Some <| distance - 2
+        | (current, distance) :: nextQueue ->
+            let visited = Set.add current visited
+            let neighbors = Map.tryFind current map
+            let queue =
+                match neighbors with
+                | None -> nextQueue
+                | Some n ->
+                    let chooseNext next =
+                        match fst next with
+                        | n when not <| Set.contains n visited -> Some(n, distance + 1)
+                        | _ -> None
+                    nextQueue @ List.choose chooseNext n
+            bfs visited queue
+    bfs Set.empty [ source, 0 ]
 
 [<EntryPoint>]
 let main argv =
-    let map = createOrbitsMap Input.input
-    printfn "result1 = %A" (getTotalOrbitsCount map)
+    let orbitsMap = createMap Input.input
+    printfn "result1 = %A" <| getTotalOrbitsCount orbitsMap
+    printfn "result2 = %A" <| findMinimumDistance orbitsMap (Object "YOU") (Object "SAN")
     0 // return an integer exit code
